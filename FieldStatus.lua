@@ -24,7 +24,7 @@ end;
 local modDesc = loadXMLFile("modDesc", g_currentModDirectory .. "modDesc.xml");
 
 FieldStatus = {
-	debug = true; -- unsure if this has any implications
+	debug = true;
 	isModInitialized = false;
 	imgDirectory = g_currentModDirectory .. "res/";
 	-- save this, as g_currentModDirectory is only available in this scope
@@ -53,6 +53,7 @@ function FieldStatus:mouseEvent(posX, posY, isDown, isUp, button)
 end;
 
 function FieldStatus:update(dt)
+	self.handleUpdate(dt);
 end;
 
 function FieldStatus:draw()
@@ -63,11 +64,26 @@ end;
 -------------------------------------------------------------------------------
 function FieldStatus:initializeMod()
 	if self.isModInitialized then
-		print('>>> Skipping initialization of FieldStatus as already initialized!');
+		self:debug('>>> Skipping initialization of FieldStatus as already initialized!');
         return;
     end;
 
     self.isModInitialized = true;
-    print(('>>> FieldStatus v%s by %s loaded...'):format(FieldStatus.version, FieldStatus.author));
+    self:debug(('>>> FieldStatus v%s by %s loaded...'):format(FieldStatus.version, FieldStatus.author));
+end;
+
+-- Prints the given text if the debug flag is enabled
+function FieldStatus:debug(txt)
+	if FieldStatus.debug then
+		print(txt);
+	end;
+end;
+
+function FieldStatus:handleUpdate(dt)
+	if g_currentMission:getIsClient() then
+		if InputBinding.hasEvent(InputBinding.FIELD_STATUS_HUD) then
+			self:debug('keybinding called');
+		end;
+	end;
 end;
 -------------------------------------------------------------------------------
