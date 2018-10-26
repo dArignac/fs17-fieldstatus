@@ -2,6 +2,25 @@
 -- Mod: Field Status
 -- Author: darignac
 
+
+-- Mod registration
+-------------------------------------------------------------------------------
+local modDesc = loadXMLFile("modDesc", g_currentModDirectory .. "modDesc.xml");
+local debug = true;
+
+FieldStatus = {
+	isModInitialized = false;
+	imgDirectory = g_currentModDirectory .. "res/";
+	-- save this, as g_currentModDirectory is only available in this scope
+	modDirectory = g_currentModDirectory;
+	version = getXMLString(modDesc, "modDesc.version");
+	author = getXMLString(modDesc, "modDesc.author");
+};
+
+addModEventListener(FieldStatus);
+-------------------------------------------------------------------------------
+
+
 -- Helper functions
 -------------------------------------------------------------------------------
 -- Transforms the given pixel value to the correct value for the game engine
@@ -17,26 +36,17 @@ end;
 function toRGBA(r, g, b, a)
 	return {r/255, g/255, b/255, a};
 end;
+
+-- Prints the given text if the debug flag is enabled
+function debug(txt)
+	if debug then
+		print(txt);
+	end;
+end;
 -------------------------------------------------------------------------------
 
--- Mod registration
--------------------------------------------------------------------------------
-local modDesc = loadXMLFile("modDesc", g_currentModDirectory .. "modDesc.xml");
 
-FieldStatus = {
-	debug = true;
-	isModInitialized = false;
-	imgDirectory = g_currentModDirectory .. "res/";
-	-- save this, as g_currentModDirectory is only available in this scope
-	modDirectory = g_currentModDirectory;
-	version = getXMLString(modDesc, "modDesc.version");
-	author = getXMLString(modDesc, "modDesc.author");
-};
-
-addModEventListener(FieldStatus);
--------------------------------------------------------------------------------
-
--- Functions of the game
+-- Function interfaces of the game
 -------------------------------------------------------------------------------
 -- called after/while (?) the map is/was loaded
 function FieldStatus:loadMap()
@@ -60,29 +70,37 @@ function FieldStatus:draw()
 end;
 -------------------------------------------------------------------------------
 
+
 -- Function of the mod
 -------------------------------------------------------------------------------
 function FieldStatus:initializeMod()
 	if self.isModInitialized then
-		self:debug('>>> Skipping initialization of FieldStatus as already initialized!');
+		debug('>>> Skipping initialization of FieldStatus as already initialized!');
         return;
     end;
 
     self.isModInitialized = true;
-    self:debug(('>>> FieldStatus v%s by %s loaded...'):format(FieldStatus.version, FieldStatus.author));
-end;
-
--- Prints the given text if the debug flag is enabled
-function FieldStatus:debug(txt)
-	if FieldStatus.debug then
-		print(txt);
-	end;
+    debug(('>>> FieldStatus v%s by %s loaded...'):format(FieldStatus.version, FieldStatus.author));
 end;
 
 function FieldStatus:handleUpdate(dt)
 	if g_currentMission:getIsClient() then
 		if InputBinding.hasEvent(InputBinding.FIELD_STATUS_HUD) then
-			self:debug('keybinding called');
+			debug('keybinding called');
+
+			local overlayBgImageId = createImageOverlay(FieldStatus.imgDirectory .. "white.png");
+			local width = pxToNormal(200, 'x');
+			local height = pxToNormal(100, 'x');
+			local padding = pxToNormal(5, 'x');
+			local horizontalMargin = pxToNormal(16, 'x');
+			local x1 = 1 - width - horizontalMargin;
+			--local x2 = x1 - width;
+			local y1 = pxToNormal(390, 'y');
+			--local y2 = y1 + height;
+
+			renderOverlay(overlayBgImageId, x1, y1, width, height);
+
+			debug('rendering done');
 		end;
 	end;
 end;
