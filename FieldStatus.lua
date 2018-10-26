@@ -9,12 +9,15 @@ local modDesc = loadXMLFile("modDesc", g_currentModDirectory .. "modDesc.xml");
 local debug = true;
 
 FieldStatus = {
-	isModInitialized = false;
 	imgDirectory = g_currentModDirectory .. "res/";
 	-- save this, as g_currentModDirectory is only available in this scope
 	modDirectory = g_currentModDirectory;
 	version = getXMLString(modDesc, "modDesc.version");
 	author = getXMLString(modDesc, "modDesc.author");
+	-- values for execution
+	isModInitialized = false;
+	renderHUD = false;
+	overlayBgImageId = nil; -- overlayId for background image
 };
 
 addModEventListener(FieldStatus);
@@ -25,6 +28,7 @@ addModEventListener(FieldStatus);
 -------------------------------------------------------------------------------
 -- Transforms the given pixel value to the correct value for the game engine
 local function pxToNormal(px, dimension)
+	-- FIXME what if someone used a different resolution?
 	if dimension == 'x' then
 		return (px / 1920);
 	else
@@ -63,10 +67,13 @@ function FieldStatus:mouseEvent(posX, posY, isDown, isUp, button)
 end;
 
 function FieldStatus:update(dt)
-	self.handleUpdate(dt);
+	self:handleUpdate(dt);
 end;
 
 function FieldStatus:draw()
+	if self.renderHUD then
+		self:render();
+	end;
 end;
 -------------------------------------------------------------------------------
 
@@ -77,7 +84,10 @@ function FieldStatus:initializeMod()
 	if self.isModInitialized then
 		debug('>>> Skipping initialization of FieldStatus as already initialized!');
         return;
-    end;
+	end;
+	
+	-- load background image
+	self.overlayBgImageId = createImageOverlay(FieldStatus.imgDirectory .. "white.png");
 
     self.isModInitialized = true;
     debug(('>>> FieldStatus v%s by %s loaded...'):format(FieldStatus.version, FieldStatus.author));
@@ -86,22 +96,28 @@ end;
 function FieldStatus:handleUpdate(dt)
 	if g_currentMission:getIsClient() then
 		if InputBinding.hasEvent(InputBinding.FIELD_STATUS_HUD) then
-			debug('keybinding called');
-
-			local overlayBgImageId = createImageOverlay(FieldStatus.imgDirectory .. "white.png");
-			local width = pxToNormal(200, 'x');
-			local height = pxToNormal(100, 'x');
-			local padding = pxToNormal(5, 'x');
-			local horizontalMargin = pxToNormal(16, 'x');
-			local x1 = 1 - width - horizontalMargin;
-			--local x2 = x1 - width;
-			local y1 = pxToNormal(390, 'y');
-			--local y2 = y1 + height;
-
-			renderOverlay(overlayBgImageId, x1, y1, width, height);
-
-			debug('rendering done');
+			-- toggle hud display, the rendering happens in FieldStatus:render()
+			if self.renderHUD then
+				self.renderHUD = false;
+			else
+				self.renderHUD = true;
+			end;
 		end;
 	end;
+end;
+
+-- called from the FieldStatus:draw() if FieldStatus.renderHUD is true
+-- is called over and over again
+function FieldStatus:render()
+	local width = pxToNormal(200, 'x');
+	local height = pxToNormal(100, 'x');
+	local padding = pxToNormal(5, 'x');
+	local horizontalMargin = pxToNormal(16, 'x');
+	local x1 = 1 - width - horizontalMargin;
+	--local x2 = x1 - width;
+	local y1 = pxToNormal(390, 'y');
+	--local y2 = y1 + height;
+
+	renderOverlay(self.overlayBgImageId, x1, y1, width, height);
 end;
 -------------------------------------------------------------------------------
