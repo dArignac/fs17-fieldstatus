@@ -1,0 +1,1 @@
+"%PROGRAMFILES%\7-Zip\7z.exe" a -r "%HOMEPATH%\Documents\my games\FarmingSimulator2017\mods\FS17_FieldStatus.zip" "%HOMEPATH%\Documents\GitHub\fs17-fieldstatus\*.lua" "%HOMEPATH%\Documents\GitHub\fs17-fieldstatus\*.xml" "%HOMEPATH%\Documents\GitHub\fs17-fieldstatus\*.png"

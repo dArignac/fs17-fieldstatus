@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<modDesc descVersion="39">
+	<author>darignac</author>
+    <version>1.0.0.0</version>
+    <title>
+        <en><![CDATA[Field Status]]></en>
+        <de><![CDATA[Feld Status]]></de>
+    </title>
+    <description>
+        <en><![CDATA[Shows the status of all owned fields]]></en>
+        <de><![CDATA[Zeigt den Status aller Felder im Besitz]]></de>
+    </description>
+    <iconFilename>settings48.png</iconFilename>
+    <multiplayer supported="true"/>
+    <extraSourceFiles>
+        <sourceFile filename="FieldStatus.lua" />
+    </extraSourceFiles>
+	<l10n>
+		<text name="FIELD_STATUS_HUD">
+			<en>Field Status</en>
+			<de>Feld Status</de>
+		</text>
+        <text name="input_FIELD_STATUS_HUD">
+			<en>Field Status</en>
+			<de>Feld Status</de>
+		</text>
+		<text name="FIELD_STATUS_HUD_SHOW">
+			<en>Show Field Status</en>
+			<de>Feld Status anzeigen</de>
+		</text>
+	</l10n>
+	<inputBindings>
+        <input name="FIELD_STATUS_HUD" category="ONFOOT VEHICLE" key1="KEY_lalt KEY_z" key2="" button="" device="0" mouse="" />
+    </inputBindings>
+</modDesc>
