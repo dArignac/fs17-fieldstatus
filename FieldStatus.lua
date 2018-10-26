@@ -1,28 +1,7 @@
 -- Mod for Farming Simulator 17
 -- Mod: Field Status
 -- Author: darignac
-
-
--- Mod registration
--------------------------------------------------------------------------------
-local modDesc = loadXMLFile("modDesc", g_currentModDirectory .. "modDesc.xml");
-local debug = true;
-
-FieldStatus = {
-	imgDirectory = g_currentModDirectory .. "res/";
-	-- save this, as g_currentModDirectory is only available in this scope
-	modDirectory = g_currentModDirectory;
-	version = getXMLString(modDesc, "modDesc.version");
-	author = getXMLString(modDesc, "modDesc.author");
-	-- values for execution
-	isModInitialized = false;
-	renderHUD = false;
-	overlayBgImageId = nil; -- overlayId for background image
-};
-
-addModEventListener(FieldStatus);
--------------------------------------------------------------------------------
-
+local debug = true;  -- FIXME remove somewhen
 
 -- Helper functions
 -------------------------------------------------------------------------------
@@ -47,6 +26,35 @@ function debug(txt)
 		print(txt);
 	end;
 end;
+-------------------------------------------------------------------------------
+
+
+-- Mod registration
+-------------------------------------------------------------------------------
+local modDesc = loadXMLFile("modDesc", g_currentModDirectory .. "modDesc.xml");
+
+FieldStatus = {
+	imgDirectory = g_currentModDirectory .. "res/";
+	-- save this, as g_currentModDirectory is only available in this scope
+	modDirectory = g_currentModDirectory;
+	version = getXMLString(modDesc, "modDesc.version");
+	author = getXMLString(modDesc, "modDesc.author");
+	-- values for execution
+	isModInitialized = false;
+	renderHUD = false;
+	hud = {
+		overlayBgImageId = nil; -- overlayId for background image
+		width = pxToNormal(200, 'x');
+		height = pxToNormal(100, 'y');
+		horizontalMargin = pxToNormal(16, 'x');
+		x1 = nil; -- x position of upper left pixel of hud
+		y1 = nil; -- y position of upper left pixel of hud
+		--x2 = nil; -- x position of lower right pixel of hud
+		--y2 = nil; -- y position of lower right pixel of hud
+	};
+};
+
+addModEventListener(FieldStatus);
 -------------------------------------------------------------------------------
 
 
@@ -81,14 +89,22 @@ end;
 -- Function of the mod
 -------------------------------------------------------------------------------
 function FieldStatus:initializeMod()
+	-- if already initialized, skip addtional init
 	if self.isModInitialized then
 		debug('>>> Skipping initialization of FieldStatus as already initialized!');
         return;
 	end;
 	
 	-- load background image
-	self.overlayBgImageId = createImageOverlay(FieldStatus.imgDirectory .. "white.png");
+	self.hud.overlayBgImageId = createImageOverlay(FieldStatus.imgDirectory .. "white.png");
 
+	-- calculate hud positions
+	self.hud.x1 = 1 - self.hud.width - self.hud.horizontalMargin;
+	self.hud.y1 = pxToNormal(390, 'y');
+	--self.hud.x2 = self.hud.x1 - self.hud.width;
+	--self.hud.y2 = self.hud.y1 + self.hud.height;
+
+	-- set initialization to done
     self.isModInitialized = true;
     debug(('>>> FieldStatus v%s by %s loaded...'):format(FieldStatus.version, FieldStatus.author));
 end;
@@ -109,15 +125,6 @@ end;
 -- called from the FieldStatus:draw() if FieldStatus.renderHUD is true
 -- is called over and over again
 function FieldStatus:render()
-	local width = pxToNormal(200, 'x');
-	local height = pxToNormal(100, 'x');
-	local padding = pxToNormal(5, 'x');
-	local horizontalMargin = pxToNormal(16, 'x');
-	local x1 = 1 - width - horizontalMargin;
-	--local x2 = x1 - width;
-	local y1 = pxToNormal(390, 'y');
-	--local y2 = y1 + height;
-
-	renderOverlay(self.overlayBgImageId, x1, y1, width, height);
+	renderOverlay(self.hud.overlayBgImageId, self.hud.x1, self.hud.y1, self.hud.width, self.hud.height);
 end;
 -------------------------------------------------------------------------------
